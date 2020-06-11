@@ -2,7 +2,7 @@ import Home from '../components/HomePage'
 import SignUp from '../components/Auth/SignUp'
 import SignIn from '../components/Auth/SignIn'
 import UserList from '../components/Users/UserList'
-import UserProfile from '../components/Users/UserProfile'
+import UserProfile from '../components/Profile/UserProfile'
 
 
 const routes = [

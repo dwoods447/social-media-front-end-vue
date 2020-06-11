@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-content>
+    <v-content style="margin: 0; padding: 0;">
     <app-menu/>
     <router-view></router-view>
     </v-content>

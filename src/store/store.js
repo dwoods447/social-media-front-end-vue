@@ -2,7 +2,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Auth from '../services/AuthenticationService'
-import Cookie from 'js-cookie'
+//import Cookie from 'js-cookie'
 //mport UserService from '../services/UserService'
 Vue.use(Vuex)
 
@@ -11,8 +11,9 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
  state: {
   token: null,
+  user: null,
   isLoggedIn: false,
-  
+  appName: "InTheMix"
  },
 
  mutations: {
@@ -21,31 +22,40 @@ const store = new Vuex.Store({
   },
   setLogOutMutation(state){
     state.token =  null;
-    state.userId = null;
+    state.user = null;
     state.token = null;
-    state.userId = null;
-    localStorage.removeItem('token');
-    localStorage.removeItem('tokenExpiration');
-    localStorage.removeItem('user');
-  },
-  clearToken (state){
-    state.token = null;
-    state.userId = null;
+    state.isLoggedIn =  false;
     localStorage.removeItem('token');
     localStorage.removeItem('tokenExpiration');
     localStorage.removeItem('user');
   },
   
-  setLoggedInUserIdMutation(state, userId){
+  setErrorMessageMutation(state, message){
+    state.error  = '';
+    state.error = message;
+  },
+
+  clearToken (state){
+    state.token = null;
+    state.user = null;
+    state.isLoggedIn =  false;
+    localStorage.removeItem('token');
+    localStorage.removeItem('tokenExpiration');
+    localStorage.removeItem('user');
+  },
+  
+  setLoggedInUserIdMutation(state, user){
     let storedUser = {};
-    if(typeof userId === 'string'){
+    if(typeof user === 'string'){
+      console.log('user is a string converting to JSON')
       let storedUser;
-      userId = JSON.parse(userId);
-      storedUser = {...userId},
-      state.userId = storedUser;
+      user = JSON.parse(user);
+      storedUser = {...user},
+      state.user = storedUser;
     }
-    storedUser = {...userId};
-    state.userId = storedUser;
+    storedUser = {...user};
+    state.user = storedUser;
+    state.isLoggedIn =  true;
   },
 
 
@@ -54,7 +64,7 @@ const store = new Vuex.Store({
  },
 
  actions: {
-   setLogoutTimerAction(context, exprationTime){
+  setLogOutTimerAction(context, exprationTime){
      console.log(`Expiration time : ${exprationTime}`)
     setTimeout(()=>{
       context.commit('setLogOutMutation');
@@ -76,28 +86,37 @@ const store = new Vuex.Store({
       }
       console.log(`User is authneticated.......`);
       console.log(`Resetting vuex state.......`);
-      context.commit('setLoggedInUserIdMutation', {userId: user.userId});
+      context.commit('setLoggedInUserIdMutation', user);
+      context.commit('setAuthTokenMutation', token);
    },
-   async login(context, credentails){
-      let token;
-      let user;
-      let tokenExpr;
-      console.log('Logging in...')
-      try{
-      const response  = await Auth.login(credentails);
+  
+   setLogOutAction(context){
+      context.commit('clearToken');
+      localStorage.removeItem('token');
+      localStorage.removeItem('tokenExpiration');
+      localStorage.removeItem('user');
+  },
+
+  async login(context, credentails){
+    let token;
+    let user;
+    let tokenExpr;
+    console.log('Logging in...')
+    try{
+    const response  = await Auth.login(credentails);
       if(response.data.token){
         token  = response.data.token;
         tokenExpr = JSON.stringify(response.data.tokenExpiresIn);
         user = JSON.stringify(response.data.user);
-        const now  = new Date.now();
+        const now  = new Date();
         const expirationDate =  new Date(now.getTime() + (Number.parseInt(tokenExpr) * 1000));
         tokenExpr = expirationDate;
         localStorage.setItem('token', token);
         localStorage.setItem('tokenExpiration', tokenExpr);
         localStorage.setItem('user', user);
-        Cookie.set('jwt', token);
-        Cookie.set('expiresDate',  tokenExpr);
-        Cookie.set('user', user);
+        // Cookie.set('jwt', token);
+        // Cookie.set('expiresDate',  tokenExpr);
+        // Cookie.set('user', user);
         context.commit('setAuthTokenMutation', token);
         context.commit('setLoggedInUserIdMutation', response.data.user);
         context.dispatch('setLogOutTimerAction', tokenExpr);
@@ -107,12 +126,25 @@ const store = new Vuex.Store({
           console.log(err);
           let errorMessage = 'Invalid username/password';
           context.commit('setErrorMessageMutation', errorMessage);
-       }
-   }
+      }
+    },
  },
 
  getters: {
+    isLoggedIn(state){
+      return state.isLoggedIn;
+    },
+    getUser(state){
+      if(state.user !== null){
+        return state.user;
+      } else {
+        return false;
+      }
+    },
 
+    getAppName(state){
+      return  state.appName;
+    },
  }
 
 
