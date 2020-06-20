@@ -1,6 +1,9 @@
 <template>
-    <div>
-        <comment :content="comment.content" v-for="comment in comments" :key="comment.id"></comment>
+    <div   :class="[{'comment-list-container-comments':hasComments},{'comment-list-container-no-comment':!hasComments}]">
+        <comment 
+        :comment="comment" 
+        v-for="comment in comments" 
+        :key="comment._id"></comment>
     </div>
 </template>
 
@@ -8,30 +11,41 @@
    import Comment from '../Comment/Comment'
     export default {
         props:{
-            postId: {
-                 type: String,
+            comments: {
+                 type: Array,
                  required: true
             }
         },
         components: {
             'comment':Comment
         },
-        crteated(){
-            this.getCommentsOnPost();
+        created(){
+            if(this.comments.length > 0){
+                this.hasComments = true;
+            }else {
+                this.hasComments = false;
+            }
         },
         data(){
             return {
-                comments: [],
+               hasComments: false
             }
         },
         methods: {
-            getCommentsOnPost(){
-                this.$store.dispatch('getCommentsOnPostAction');
-            }
+          
         }
     }
 </script>
 
 <style  scoped>
+ .comment-list-container-no-comment{
+      height: 100%;
+      overflow-y: scroll;
+ }
+
+ .comment-list-container-comments{
+     height: 124px;
+      overflow-y: scroll;
+ }
 
 </style>

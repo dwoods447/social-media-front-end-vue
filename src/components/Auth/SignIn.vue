@@ -1,8 +1,8 @@
 <template>
-      <v-container fluid fill-height>
+      <v-container fluid fill-height style="background-color: #ccc;">
         <v-layout align-center justify-center>
-          <v-flex xs12 sm8 md4>
-            <v-card class="elevation-12">
+          <v-flex xs12 sm12 md12>
+            <v-card class="elevation-12" style="max-width: 35%; margin: 0 auto;">
               <v-toolbar dark color="primary">
                 <v-toolbar-title>See what’s happening in the world right now</v-toolbar-title>
                 <v-spacer></v-spacer>
@@ -57,9 +57,19 @@ export default {
     async sendCredentials(){
       console.log(`Sending...`);
       if(this.username && this.password) {
-        let res = await this.$store.dispatch('login', {username: this.username, password: this.password});
-
+        let res = (await this.$store.dispatch('login', {username: this.username, password: this.password})).data;
         console.log(`Response: ${JSON.stringify(res)}`);
+        if(res.token){
+          if(res.user.isProfileComplete === 'true'){
+          console.log('redirecting to news feed');
+            this.$router.push({name: 'newsfeed'});
+          } else {
+              console.log('redirecting to edit profile');
+              this.$router.push({name: 'edit-profile'});
+          }
+        }
+        
+ 
       }
     },
     resetForm(){

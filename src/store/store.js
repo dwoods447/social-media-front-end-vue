@@ -2,9 +2,11 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import Auth from '../services/AuthenticationService'
+import Api from '../services/API'
 //import Cookie from 'js-cookie'
-//mport UserService from '../services/UserService'
-Vue.use(Vuex)
+import UserService from '../services/UserService'
+import PostService from '../services/PostService'
+Vue.use(Vuex);
 
 
 
@@ -13,7 +15,8 @@ const store = new Vuex.Store({
   token: null,
   user: null,
   isLoggedIn: false,
-  appName: "InTheMix"
+  appName: "InTheMix",
+  newsFeedPosts: [],
  },
 
  mutations: {
@@ -33,6 +36,10 @@ const store = new Vuex.Store({
   setErrorMessageMutation(state, message){
     state.error  = '';
     state.error = message;
+  },
+  setAllPostsMutation(state, posts){
+    state.newsFeedPosts  = [];
+    state.newsFeedPosts = posts;
   },
 
   clearToken (state){
@@ -64,11 +71,17 @@ const store = new Vuex.Store({
  },
 
  actions: {
+  setAuthHeaderTokenAction(context, token){
+    Api.defaults.headers.common['Authorization'] = 'Bearer '+token;
+    return token;
+  },
+  
   setLogOutTimerAction(context, exprationTime){
      console.log(`Expiration time : ${exprationTime}`)
     setTimeout(()=>{
       context.commit('setLogOutMutation');
-    }, exprationTime)
+      console.log(`Token expired running Auto Logout`);
+    }, exprationTime * 1000)
    },
    tryAutoLoginAction(context){
       console.log(`Trying auto login.......`);
@@ -109,17 +122,17 @@ const store = new Vuex.Store({
         tokenExpr = JSON.stringify(response.data.tokenExpiresIn);
         user = JSON.stringify(response.data.user);
         const now  = new Date();
-        const expirationDate =  new Date(now.getTime() + (Number.parseInt(tokenExpr) * 1000));
+        const expirationDate =  new Date(((now.getTime()) + (tokenExpr) * 1000));
         tokenExpr = expirationDate;
         localStorage.setItem('token', token);
         localStorage.setItem('tokenExpiration', tokenExpr);
         localStorage.setItem('user', user);
-        // Cookie.set('jwt', token);
-        // Cookie.set('expiresDate',  tokenExpr);
-        // Cookie.set('user', user);
         context.commit('setAuthTokenMutation', token);
         context.commit('setLoggedInUserIdMutation', response.data.user);
         context.dispatch('setLogOutTimerAction', tokenExpr);
+        console.log(`Auth Token: ${JSON.stringify(token)}`);
+        console.log(`User: ${JSON.stringify(user)}`);
+       
       }
             return response;
         }catch(err){
@@ -128,23 +141,118 @@ const store = new Vuex.Store({
           context.commit('setErrorMessageMutation', errorMessage);
       }
     },
+
+    async followUserAction(context, usertoFollowId){
+      const followResponse = await UserService.followUser(usertoFollowId);
+      if(!followResponse){
+        return;
+      }
+      return 'You are now following this user';
+    },
+
+
+    async editUserInfoAction(context, userData){
+      const editResponse = await UserService.editUserInfo(userData)
+      if(!editResponse){
+        return;
+      }
+      context.commit('setLoggedInUserIdMutation', editResponse.user);
+      localStorage.removeItem('user');
+      localStorage.setItem('user', editResponse.user);
+      return 'Account successfuly updated!'
+    },
+
+    async uploadUserImageAction(context, image){
+        const uploadResp = await UserService.uploadUserPhoto(image);
+        if(!uploadResp){
+          return; 
+        }
+
+        return 'Image uploaded successfully!'
+    },
+
+    async fetchAllPostsAction(context){
+       const posts = (await PostService.getAllPosts()).data;
+       context.commit('setAllPostsMutation', posts.posts);
+       console.log(`store posts response${JSON.stringify(posts, null, 2)}`)
+       return posts.posts;
+    },
+    async createPostAction(context, post){
+      console.log('Initiating Api call to create new post')
+     console.log(`Setting token in store ${JSON.stringify(context.state.token)}`)
+      context.dispatch('setAuthHeaderTokenAction', context.state.token);
+      const newPost = await PostService.createPost(post);
+      if(!newPost){
+        return;
+      }
+      return 'Post created successfully!';
+    },
+
+    async addLikeToPostAction(context, postInfo){
+      console.log('Initiating Api call to create new post')
+      console.log(`Setting token in store ${JSON.stringify(context.state.token)}`)
+       context.dispatch('setAuthHeaderTokenAction', context.state.token);
+       const likeResponse = await PostService.addLikeToPost(postInfo);
+       if(!likeResponse){
+        return;
+       }
+       return 'Like added successfully';
+    },
+
+    async addCommentToPost(context, postInfo){
+      console.log('Initiating Api call to create new post')
+      console.log(`Setting token in store ${JSON.stringify(context.state.token)}`)
+       context.dispatch('setAuthHeaderTokenAction', context.state.token);
+       const commentResponse = await PostService.addCommentToPost(postInfo);
+       if(!commentResponse){
+        return;
+       }
+       return 'Comment added successfully';
+    }
  },
 
  getters: {
-    isLoggedIn(state){
-      return state.isLoggedIn;
-    },
     getUser(state){
       if(state.user !== null){
         return state.user;
       } else {
-        return false;
+        return {};
       }
     },
-
     getAppName(state){
       return  state.appName;
     },
+    getGender(state){
+      if(state.user !== null){
+        return state.user.gender;
+      } else {
+        return null;
+      }
+    },
+    getAuthToken(state){
+      if(state.token !== null){
+        return state.token;
+      }else {
+        return null;
+      }
+    },
+    isLoggedIn(state){
+      return state.isLoggedIn;
+    },
+    isGeneratedUser(state){
+      if(state.user !== null){
+       return  state.user.generatedUser;
+      } else {
+        return null;
+      }
+    },
+    isProfileComplete(state){
+      if(state.user !== null){
+        return  state.user.isProfileComplete;
+      } else {
+        return null;
+      }
+    }
  }
 
 

@@ -20,9 +20,7 @@
                         <v-btn icon>
                             <v-icon> edit</v-icon>
                         </v-btn>
-                        <v-btn icon>
-                            <v-icon> delete</v-icon>
-                        </v-btn>
+                         <DeleteProfile/>
                     </div>
                  </v-col>
              </v-row>
@@ -33,14 +31,15 @@
                 </v-col> 
              </v-row>   
         </v-card>
+     
     </div>
 </template>
 
 <script>
-
+  import DeleteProfile from '../Profile/DeleteProfile'
     export default {
         components: {
-
+            DeleteProfile
         },
         data(){
             return {

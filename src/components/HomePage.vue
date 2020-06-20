@@ -2,10 +2,12 @@
     <div style="margin: 0; padding: 0;">
             <template style="margin: 0; padding: 0;">
                 <v-parallax src="../assets/banner/home-banner.jpg" 
-                height="856">
+                height="925" style="min-height: 100vh;">
                 <div class="flex-container">
                     <div class="flex-item">
-                        <h1>Connect with friends and the world around you on {{ this.$store.getters.getAppName}}</h1>
+                        <div style="width: 65%;">
+                         <h1>Connect with friends and the world around you on {{ this.$store.getters.getAppName}}</h1>
+                        </div>
                         <ul>
                             <li>See photos and updates from followers in News Feed.</li>
                             <li>Share what's new in your life on your Timeline.</li>
