@@ -1,37 +1,41 @@
 <template>
-      <v-container fluid fill-height>
+<div>
+     <div class="flex-container">
+                      <div v-if="isGeneratedUser === 'true'" >
+                          <div v-if="getGender === 'male'">
+                               <img :src="fullImageSrc|maleImageSrcFilter" aspect-ratio="1">
+                          </div>
+                           <div v-if="getGender === 'female'">
+                                <img :src="fullImageSrc|femaleImageSrcFilter" aspect-ratio="1" >
+                          </div>
+                      </div>
+                      <div v-else>
+                            <img :src="fullImageSrc|imageSrcFilter" aspect-ratio="1">
+                      </div>
+                      <div>
+                        <a @click="removeSelectedFile" href="javascript:void(0);"><span  v-if="fullImageSrc">X</span></a>
+                        <input type="file" ref="file"  @change="onSelect">
+                         <v-card-actions>
+                        <div>
+                            <h5>Allowed file types: {{allowedTypes}}</h5>
+                            </div>
+                            &nbsp;
+                            <div v-if="uploadError">
+                            <h5 style="color:red;">{{message}}</h5>
+                            </div>
+                            &nbsp;
+                            <div v-if="uploadSuccess">
+                            <h5 style="color:green;">{{message}}</h5>
+                            </div>
+                    </v-card-actions>
+                      </div>
+                     
+         </div>
+          <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
            <v-card class="elevation-12">
                <h2 style="text-align:center;">Edit Profile</h2>
-                <div class="flex-container">
-                      <div v-if="isGeneratedUser === 'true'" >
-                          <div v-if="getGender && getGender === 'male'">
-                               <v-img :src="fullImageSrc" aspect-ratio="1" v-model="imageUrl"></v-img>
-                          </div>
-                           <div v-if="getGender && getGender === 'female'">
-                                <v-img :src="fullImageSrc" aspect-ratio="1" v-model="imageUrl"></v-img>
-                          </div>
-                      </div>
-                      <div v-else>
-                            <v-img :src="fullImageSrc" aspect-ratio="1" v-model="imageUrl"></v-img>
-                      </div>
-                      <a @click="removeSelectedFile" href="javascript:void(0);"><span  v-if="fullImageSrc">X</span></a>
-                      <input type="file" ref="file"  @change="onSelect">
-                      <v-card-actions>
-                        <div>
-                        <h5>Allowed file types: {{allowedTypes}}</h5>
-                        </div>
-                        &nbsp;
-                        <div v-if="uploadError">
-                        <h5 style="color:red;">{{message}}</h5>
-                        </div>
-                        &nbsp;
-                        <div v-if="uploadSuccess">
-                        <h5 style="color:green;">{{message}}</h5>
-                        </div>
-                    </v-card-actions>
-                    </div>
               <v-form @submit.prevent="formSubmit" enctype="multipart/form-data"  style="padding: 1em;">
                     <v-text-field
                     v-model="formData.username"
@@ -69,12 +73,17 @@
                     </v-flex>
                 </v-layout>
             </v-container>
+</div>
+     
 </template>
 
 <script>
     export default {
         components: {
 
+        },
+        created(){
+            console.log(`User Generated value: ${this.$store.getters.isGeneratedUser}`);
         },
         data(){
             return {
@@ -124,7 +133,7 @@
         computed: {
            
             fullImageSrc: function(){
-                return this.imageUrl;
+                return this.$store.getters.getUser;
             },
             isProfileComplete(){
                return this.$store.getters.isProfileComplete;
@@ -138,22 +147,22 @@
         },
         filters: {
             imageSrcFilter(src){
-                if(src){
-                    return '../../../assets/static/uploads/'+src;
+                if(src.images.imagePaths.length > 0){
+                   return require(`../../assets/static/random-users/uploads/${src.images.imagePaths[0].path}`);
                 } else {
                   return 'http://via.placeholder.com/230x230';
                 }
             },
             maleImageSrcFilter(src){
-                if(src){
-                    return '../../../assets/static/random-users/men/'+ src;
+                if(src.images.imagePaths.length > 0){
+                    return require(`../../assets/static/random-users/men/${src.images.imagePaths[0].path}`);
                 }else {
                     return 'http://via.placeholder.com/230x230';
                 }
             },
             femaleImageSrcFilter(src){
-                if(src){
-                  return '../../../assets/static/random-users/women/'+ src;
+                if(src.images.imagePaths.length > 0){
+                 return require(`../../assets/static/random-users/women/${src.images.imagePaths[0].path}`);
                 }else {
                     return 'http://via.placeholder.com/230x230';
                 }
@@ -168,6 +177,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: row;
+    flex-direction: column;
 }
 </style>

@@ -5,50 +5,62 @@ import UserList from '../components/Users/UserList'
 import UserProfile from '../components/Profile/UserProfile'
 import EditProfile from '../components/Profile/EditProfile'
 import NewsFeed from '../components/NewsFeed/NewsFeed'
-import store from '../store/store'
+import FindPeopleList from '@/components/Users/FindPeopleList'
+
+
+//import store from '../store/store'
 
 const routes = [
+    
     {
         path: '/', 
+        name:'home',
         component: Home, 
-        name:'home'
-      },
+        
+    },
     {
         path: '/signup', 
+        name: 'signup',
         component: SignUp, 
-        name: 'signup'
+        
     },
     {
         path: '/signin', 
+        name: 'signin',
         component: SignIn, 
-        name: 'signin'
+        
     },
     {
-        path: '/users-list', 
+        path: '/people', 
+        name:'find-people',
+        component: FindPeopleList,   
+    },
+    {
+        path: '/users-list',
+        name: 'user-list', 
         component: UserList, 
-        name: 'user-list'
+        
     },
     {
-        path: '/users-profile', 
-        component: UserProfile, 
-        name: 'users-profile'
-    },
-    {
-        path: '/edit-profile', 
+        path: '/edit-profile',
+        name:'edit-profile', 
         component: EditProfile, 
-        name:'edit-profile'
+        
+    },
+    {
+        path: '/profile',
+        name:'profile', 
+        component: UserProfile, 
+        
     },
     {
         path: '/news-feed', 
-        component:  NewsFeed, 
         name:'newsfeed',
-        beforeEnter: (to, from, next) => {
-            if(!store.getters.isLoggedIn){
-                next({name: 'signin'});
-            }else {
-                next({name: 'newsfeed'});
-            }
-        }
+        component:  NewsFeed, 
+        // beforeEnter: (to, from, next) => {
+        //     if(!store.getters.isLoggedIn && to.name !== 'signin') next({name: 'newsfeed'}) 
+        //     else next();
+        // }
     }
 ]
 

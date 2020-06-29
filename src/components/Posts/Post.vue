@@ -1,6 +1,6 @@
 <template>
     <div>
-      <v-card style=" margin: 7px auto; max-width: 500px;">
+      <v-card style=" margin: 7px auto; max-width: 55%;">
                 <v-toolbar dark color="primary">
                     <div v-if="generatedUser === 'true'">
                         <div v-if="gender === 'male'" >
@@ -16,13 +16,19 @@
               
                 <h2 style="font-size: 1.1em; margin-right: 20px;">&nbsp;&nbsp;{{ postedBy.username }}<br/><span style="font-size: small;">{{ created | dateFilter}}</span></h2>
                 <v-spacer></v-spacer>
+                <v-btn text v-if="canDelete === true" :class="[{canDelete: 'show-post-remove-icon'}]">
+                     <v-icon>delete</v-icon>
+                </v-btn>
+                 <v-btn text v-else :class="['hide-post-remove-icon']">
+                     <v-icon>delete</v-icon>
+                </v-btn>
               </v-toolbar>
 
        <v-card-text>
            {{this.text}}
            <v-card-actions>
                 <v-btn icon @click="addLikeToPost(postId)">
-                 <v-icon  dark :class="{'pink--text':postHasLikes}">mdi-heart</v-icon> &nbsp;&nbsp; {{ postLikes.length }}
+                 <v-icon  dark :class="{'pink--text':youLikedPost}">mdi-heart</v-icon> &nbsp;&nbsp; {{ postLikes.length }}
                 </v-btn>
 
                <v-btn icon>
@@ -77,25 +83,41 @@ import moment from 'moment'
             }
         },
         created(){
-            this.checkLikes();   
+            this.checkLikes(); 
+            this.setCanDelete();  
        },
         data(){
             return {
                 comment: '',
-                postHasLikes: true,
+                postWasLikedByYou: true,
+                canDelete: false,
             }
         },
         computed: {
             postLikes(){
                 return this.numberOfLikes;
-            }
+            },
+            youLikedPost(){
+                return this.postWasLikedByYou;
+            },
         },
         methods:{
+            setCanDelete(){
+                if(this.$store.getters.getUser._id === this.postedBy._id){
+                    console.log(`This user posted this post.`)
+                    this.canDelete = true;
+                }
+            },
             checkLikes(){
-                if(this.numberOfLikes.length > 0){
-                        this.postHasLikes = true;
+
+                const likeIndex = this.numberOfLikes.findIndex(like =>{
+                    return like._id.toString() === this.$store.getters.getUser._id;
+                });
+                console.log(`Like index ${likeIndex}`);
+                if(this.numberOfLikes.length > 0 && likeIndex >= 0){
+                        this.postWasLikedByYou = true;
                 }else {
-                     this.postHasLikes = false;
+                     this.postWasLikedByYou = false;
                 }
             },
             addLikeToPost(postId){
@@ -104,12 +126,16 @@ import moment from 'moment'
             },
             addCommentToPost(postId){
                 if(this.comment){
-                 console.log(`Adding comment to post with id ${postId}`);
+                // console.log(`Adding comment to post with id ${postId}`);
                  const postInfo  = {postId: postId, comment: this.comment };
                  this.$store.dispatch('addCommentToPost', postInfo);
                 }
              
-            }
+            },
+             deletePost(postId){
+                   const postInfo  = {postId: postId};
+                   this.$store.dispatch('deletePostAction', postInfo);
+             }
         },
         filters: {
             dateFilter(date){
@@ -146,5 +172,12 @@ import moment from 'moment'
 <style  scoped>
  .post-like{
      color: red;
+ }
+
+ .show-post-remove-icon{
+     display: block;
+ }
+ .hide-post-remove-icon{
+     display: none;
  }
 </style>

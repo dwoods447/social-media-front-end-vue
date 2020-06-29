@@ -8,7 +8,7 @@ export default {
         return Api.post('/posts/create/post', postInfo);
     },
     deletePost(postID){
-        return Api.post(`/posts/delete/${postID}/post`);
+        return Api.post(`/posts/delete/${postID.postId}/post`);
     },
     addCommentToPost(postInfo){
         return Api.post(`/posts/add/comment/${postInfo.postId}/post`, postInfo);

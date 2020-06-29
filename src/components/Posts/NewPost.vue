@@ -3,7 +3,7 @@
          <v-card  style="max-width: 80%; margin: 25px auto;">
              <v-toolbar dark color="grey">
                  <div v-if="isAuthenticated">
-                        <div v-if="user.generatedUser === 'true'" :class="['is-a-generated-user']">
+                <div v-if="user.generatedUser === 'true'" :class="['is-a-generated-user']">
                      <div v-if="user.gender === 'male'" :class="['is-a-male-user']">
                             <img :src="user|maleImageSrcFilter" style="display: inline-block; width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2 style="display: inline-block;">{{user.username}}</h2> 
                      </div>
@@ -11,9 +11,9 @@
                             <img :src="user|femaleImageSrcFilter" style="display: inline-block; width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2 style="display: inline-block;">{{user.username}}</h2> 
                      </div>
                  </div>
-                 <div v-else :class="['is-not-a-generated-user']">
-                      <img :src="user|imageSrcFilter" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2>{{user.username}}</h2> 
                  </div>
+                <div v-else :class="['is-not-a-generated-user']">
+                      <img :src="user|imageSrcFilter" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2>{{user.username}}</h2> 
                  </div>
                 <v-spacer></v-spacer>
               </v-toolbar>
@@ -54,6 +54,7 @@
             return {
                 photo: '',
                 text: '',
+                video: '',
             }
         },
         methods: {
@@ -61,23 +62,30 @@
               event.preventDefault();
               console.log(`Adding new post on the client.`)       
              let postContents = {};
-             if(this.photo || this.text){
+             if(this.photo || this.text || this.video){
+                if(this.video){
+                    postContents.text = this.text;
+                }  
                 if(this.photo){
                     postContents.photo = this.photo;
                 }
                 if(this.text){
                     postContents.text = this.text;
                 } 
+               
                  this.$store.dispatch('setAuthHeaderTokenAction', this.$store.getters.getAuthToken);
                  this.$store.dispatch('createPostAction', postContents);
+                 this.text = '';
+                 this.photo = '';
+                 this.video = '';
               }
             }
         },
 
         filters: {
               imageSrcFilter(src){
-                 console.log(`${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+       
+                if(src.images.imagePaths.length > 0){
                     //return require(`../../assets/static/random-users/uploads/${src}`);
                     return require('../../assets/static/random-users/uploads/'+src.images.imagePaths[0].path)
                 } else {
@@ -85,8 +93,8 @@
                 }
             },
             maleImageSrcFilter(src){
-                console.log(`${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+               
+                if(src.images.imagePaths.length > 0){
                     console.log(`${src}`);
                     //return require(`../../assets/static/random-users/men/${src}`)
                     return require('../../assets/static/random-users/men/'+src.images.imagePaths[0].path);
@@ -95,8 +103,7 @@
                 }
             },
             femaleImageSrcFilter(src){
-                console.log(`Src for female filter ${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+                if(src.images.imagePaths.length > 0){
                     console.log(`${src}`);
                   return require('../../assets/static/random-users/women/'+src.images.imagePaths[0].path);
                 }else {

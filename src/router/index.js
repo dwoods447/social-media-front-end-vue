@@ -7,6 +7,7 @@ Vue.use(Router)
 
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 

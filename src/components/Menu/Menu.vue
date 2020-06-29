@@ -1,7 +1,7 @@
  <template>
   <div>
  <v-card>
-   <v-app-bar>
+   <v-toolbar>
       <v-toolbar-title ><v-btn text @click="navigateTo('home')">{{ this.$store.getters.getAppName}}</v-btn></v-toolbar-title>
       <span>
         <v-btn text
@@ -23,9 +23,32 @@
                       <img :src="userInfo|imageSrcFilter" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">
           </div>
        </div>
- 
-         <span v-if="isAuthenticated && userInfo">Welcome, {{userInfo.username}}</span>&nbsp;
-         <v-btn text v-if="!isAuthenticated" @click="navigateTo('signin')">
+       <v-toolbar-items>
+       <v-menu offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            color="default"
+            light
+            v-on="on"
+            text
+          >
+          <span v-if="isAuthenticated && userInfo">Welcome, {{userInfo.username}}</span>&nbsp;
+          <v-icon>expand_more</v-icon>
+          </v-btn>
+          </template>
+         <v-list>
+          <v-list-item-group v-if="isAuthenticated && userInfo">
+            <v-list-item>
+              <v-list-item-content>
+                 <v-list-item-title style="text-align:center;"><a href="javascript:void(0)" @click="navigateTo('edit-profile')" >Edit Profile</a></v-list-item-title>
+              </v-list-item-content>             
+           </v-list-item>
+          </v-list-item-group>
+        </v-list>
+       </v-menu>
+      </v-toolbar-items> 
+   
+       <v-btn text v-if="!isAuthenticated" @click="navigateTo('signin')">
            Sign In
         </v-btn>
 
@@ -37,7 +60,7 @@
            LogOut
         </v-btn>
 
-    </v-app-bar>
+    </v-toolbar>
 
 
 
@@ -46,9 +69,13 @@
 </template>
 <script>
 export default {
+    created(){
+      
+    },
     data(){
          return {
-           drawer : false
+           drawer : false,
+           on: true
          }
     },
     methods: {
@@ -62,13 +89,13 @@ export default {
 
       logOut(){
         this.$store.dispatch('setLogOutAction');
+        this.$router.push({name: 'home'})
       },
     },
 
     filters: {
          imageSrcFilter(src){
-                 console.log(`${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+                if(src.images.imagePaths.length > 0){
                     //return require(`../../assets/static/random-users/uploads/${src}`);
                     return require('../../assets/static/random-users/uploads/'+src.images.imagePaths[0].path)
                 } else {
@@ -76,8 +103,7 @@ export default {
                 }
             },
             maleImageSrcFilter(src){
-                console.log(`${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+                if(src.images.imagePaths.length > 0){
                     console.log(`${src}`);
                     //return require(`../../assets/static/random-users/men/${src}`)
                     return require('../../assets/static/random-users/men/'+src.images.imagePaths[0].path);
@@ -86,8 +112,7 @@ export default {
                 }
             },
             femaleImageSrcFilter(src){
-                console.log(`Src for female filter ${src.images.imagePaths[0].path}`);
-                if(src.images.imagePaths[0].length > 0){
+                if(src.images.imagePaths.length > 0){
                     console.log(`${src}`);
                   return require('../../assets/static/random-users/women/'+src.images.imagePaths[0].path);
                 }else {

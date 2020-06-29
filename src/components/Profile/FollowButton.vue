@@ -1,8 +1,9 @@
 <template>
     <div>
-         <v-tbn text @click="followUser(followUser)">
+         <v-btn @click="followUser(followUser)"
+         color="primary">
             Follow  
-         </v-tbn>   
+         </v-btn>   
     </div>
 </template>
 
@@ -18,8 +19,10 @@
             }
         },
         methods: {
-           followUser(useriD){
-               this.$store.dispatch('followUserAction', useriD);
+           followUser(){
+               const userId = {userId:  this.userID};
+               console.log(`Sending user id for follow: ${this.userID}`)
+               this.$store.dispatch('followUserAction', userId);
            }
         }
     }
