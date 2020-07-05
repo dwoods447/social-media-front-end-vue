@@ -64,6 +64,7 @@
                                 </v-card>
                             </v-tab-item>
                         </v-tabs-items>
+                        <v-btn @click="goBackToNewsFeed">Back to NewFeed</v-btn>
                 </v-col> 
              </v-row>   
         </v-card>
@@ -98,6 +99,10 @@ import FollowButton from '@/components/Profile/FollowButton'
                 console.log(`uSER RETURNED${JSON.stringify(user, null, 2)}`)
                 this.user = user;
 
+            },
+
+            goBackToNewsFeed(){
+                this.$router.push({name: "newsfeed"});
             }
         },
         filters:{

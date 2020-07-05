@@ -1,6 +1,7 @@
 <template>
-    <div>
-        <Post v-for="post in posts" 
+<div>
+     <div v-if="allPosts.length > 0">
+        <Post v-for="post in allPosts" 
         :text="post.text" 
         :numberOfLikes="post.likes" 
         :postedBy="post.postedBy" 
@@ -11,15 +12,22 @@
         :generatedUser="post.postedBy.generatedUser"
         :gender="post.postedBy.gender"
         :postId="post._id"
+        :photo="post.photo.imagePaths"
         >
         <div v-if="post.comments" class="comment-list-outer-container">
              <comment-list 
             :comments="post.comments"
+            :postId="post._id"
              ></comment-list>
         </div>
        
         </Post>
     </div>
+    <div v-else>
+            <h1 style="text-align: center; color: #ccc;">You don't have any posts yet.</h1>
+    </div>
+</div>
+   
 </template>
 
 <script>
@@ -37,6 +45,11 @@ import CommmentList from '../CommentList/CommentList'
         data(){
             return {
 
+            }
+        },
+        computed:{
+            allPosts(){
+                return this.posts;
             }
         }
     }

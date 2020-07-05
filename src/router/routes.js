@@ -1,13 +1,12 @@
 import Home from '../components/HomePage'
-import SignUp from '../components/Auth/SignUp'
 import SignIn from '../components/Auth/SignIn'
 import UserList from '../components/Users/UserList'
 import UserProfile from '../components/Profile/UserProfile'
 import EditProfile from '../components/Profile/EditProfile'
 import NewsFeed from '../components/NewsFeed/NewsFeed'
 import FindPeopleList from '@/components/Users/FindPeopleList'
-
-
+import Register from '../components/Register'
+import EditProfileInComplete from '../components/Profile/EditProfileInComplete'
 //import store from '../store/store'
 
 const routes = [
@@ -21,7 +20,7 @@ const routes = [
     {
         path: '/signup', 
         name: 'signup',
-        component: SignUp, 
+        component: Register, 
         
     },
     {
@@ -45,6 +44,12 @@ const routes = [
         path: '/edit-profile',
         name:'edit-profile', 
         component: EditProfile, 
+        
+    },
+    {
+        path: '/edit-profile-incomplete',
+        name:'edit-profile-incomplete', 
+        component: EditProfileInComplete, 
         
     },
     {

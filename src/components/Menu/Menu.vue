@@ -1,11 +1,11 @@
  <template>
-  <div>
+  <div class="navbar-container">
  <v-card>
-   <v-toolbar>
+   <v-toolbar dark color="primary">
       <v-toolbar-title ><v-btn text @click="navigateTo('home')">{{ this.$store.getters.getAppName}}</v-btn></v-toolbar-title>
       <span>
         <v-btn text
-        v-if="isAuthenticated" @click="navigateTo('newsfeed')">
+        v-if="isAuthenticated && isProfileComplete" @click="navigateTo('newsfeed')">
         NewsFeed
         </v-btn>
       </span>
@@ -20,8 +20,8 @@
                      </div>
                  </div>
                  <div v-else :class="['is-not-a-generated-user']">
-                      <img :src="userInfo|imageSrcFilter" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">
-          </div>
+                      <img :src="this.postPhotoBaseURL+'images/'+userInfo.images.imagePaths[0].path" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">
+                  </div>
        </div>
        <v-toolbar-items>
        <v-menu offset-y>
@@ -31,13 +31,17 @@
             light
             v-on="on"
             text
+            
           >
-          <span v-if="isAuthenticated && userInfo">Welcome, {{userInfo.username}}</span>&nbsp;
-          <v-icon>expand_more</v-icon>
+          <span v-if="isAuthenticated">
+             <span >Welcome, {{userInfo.username}}</span>&nbsp;
+             <v-icon>expand_more</v-icon>
+          </span>
+         
           </v-btn>
           </template>
          <v-list>
-          <v-list-item-group v-if="isAuthenticated && userInfo">
+          <v-list-item-group >
             <v-list-item>
               <v-list-item-content>
                  <v-list-item-title style="text-align:center;"><a href="javascript:void(0)" @click="navigateTo('edit-profile')" >Edit Profile</a></v-list-item-title>
@@ -68,22 +72,28 @@
   </div>
 </template>
 <script>
+import api from '../../services/API'
 export default {
     created(){
-      
+       this.postPhotoBaseURL = api.defaults.baseURL;
     },
     data(){
          return {
            drawer : false,
-           on: true
+           on: true,
+           postPhotoBaseURL: '',
          }
     },
     methods: {
         navigateTo(route, param){
         if (param) {
-          this.$router.push({ name: route, params: param });
-        } else {
-          this.$router.push({name: route});
+          if (this.$route.name !== route){
+            this.$router.push({name: route, params: param });
+          } 
+        }else {
+           if (this.$route.name !== route){
+             this.$router.push({name: route});
+           }
         }
       },
 
@@ -126,8 +136,14 @@ export default {
        },
        userInfo(){
          return this.$store.getters.getUser;
+       },
+       isProfileComplete(){
+         return this.$store.getters.isProfileComplete;
        }
      },
      
 }
 </script>
+<style>
+
+</style>

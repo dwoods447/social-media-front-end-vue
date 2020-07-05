@@ -11,26 +11,41 @@
                             <img :src="user|femaleImageSrcFilter" style="display: inline-block; width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2 style="display: inline-block;">{{user.username}}</h2> 
                      </div>
                  </div>
-                 </div>
                 <div v-else :class="['is-not-a-generated-user']">
-                      <img :src="user|imageSrcFilter" style="width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2>{{user.username}}</h2> 
+                      <img :src="this.postPhotoBaseURL+'images/'+user.images.imagePaths[0].path" style="display: inline-block; width:50px; height: 50px; margin-right: 7px; border-radius: 50%;">&nbsp;<h2 style="display: inline-block;">{{user.username}}</h2> 
                  </div>
+             </div>
                 <v-spacer></v-spacer>
               </v-toolbar>
            <v-card-actions>
-            <v-form style="width: 85%; padding: 1em; background-color: #eee; margin: 0 auto;">
-                <v-text-field
-                label="Share your thoughts..."
-                v-model="text">
-                </v-text-field>
-                <v-btn text>
-                    <v-icon>camera_alt</v-icon>
-                </v-btn>
-                 <v-btn text>
-                    <v-icon>videocam</v-icon>
-                </v-btn>
-               <br/>
-            </v-form>
+               <v-row>
+                    <v-col lg="12" v-if="imgPreview">
+                            <div style="max-width: 100%; height: auto;" >
+                                <img :src="imgPreview" alt="" style="width: 100%; height auto;"/>
+                            </div>
+                            <a @click="removeSelectedFile" href="javascript:void(0);">
+                                <span  v-if="imgPreview">X</span>
+                            </a>  
+                    </v-col>
+                    <v-col lg="12">
+                             <div>
+                                <v-form style="display:block; width: 100%; padding: 1em; background-color: #eee; margin: 0 auto;" method="post"  enctype='multipart/form-data'>
+                                    <v-text-field
+                                    label="Share your thoughts..."
+                                    v-model="text">
+                                    </v-text-field>
+                                    <v-btn text>
+                                        <v-icon>camera_alt</v-icon>
+                                        <input type="file" name="image" ref="image"  @change="onSelect" style="">
+                                    </v-btn>
+                                    <!-- <v-btn text>
+                                        <v-icon>videocam</v-icon>
+                                    </v-btn> -->
+                                <br/>
+                                </v-form>
+                                </div>
+                    </v-col>
+               </v-row>
            </v-card-actions>  
            <v-btn color="primary" style="margin: 10px 55px;" @click="addNewPost($event)">POST</v-btn>
           </v-card>
@@ -38,6 +53,7 @@
 </template>
 
 <script>
+    import api from '../../services/API'
     export default {
         props:{
             user: {
@@ -45,7 +61,8 @@
             }
         },
         created(){
-            console.log(`This is a user on NEWPOST ${JSON.stringify(this.user)}`)
+           // console.log(`This is a user on NEWPOST ${JSON.stringify(this.user)}`)
+           this.postPhotoBaseURL = api.defaults.baseURL;
         },
         components: {
 
@@ -55,19 +72,30 @@
                 photo: '',
                 text: '',
                 video: '',
+                selectedFile: '',
+                previewSrc: '',
             }
         },
         methods: {
+              onSelect: function(e){
+                this.selectedFile = e.target.files[0];
+                if (this.selectedFile) {
+                    // File is selected  
+                   const reader = new FileReader();
+                    reader.onload = e =>  this.previewSrc = e.target.result;
+                    reader.readAsDataURL(this.selectedFile);
+                }
+            },
              addNewPost(event){
               event.preventDefault();
               console.log(`Adding new post on the client.`)       
              let postContents = {};
-             if(this.photo || this.text || this.video){
+             if(this.previewSrc || this.text || this.video){
                 if(this.video){
                     postContents.text = this.text;
                 }  
-                if(this.photo){
-                    postContents.photo = this.photo;
+                if(this.previewSrc){
+                    postContents.image = this.selectedFile;
                 }
                 if(this.text){
                     postContents.text = this.text;
@@ -79,7 +107,12 @@
                  this.photo = '';
                  this.video = '';
               }
-            }
+            },
+             removeSelectedFile(){
+                this.selectedFile = null;
+                this.$refs.file.value = null;
+                 this.previewSrc = '';
+            },
         },
 
         filters: {
@@ -114,6 +147,9 @@
         computed: {
             isAuthenticated(){
                 return this.$store.getters.isLoggedIn;
+            },
+            imgPreview(){
+                return this.previewSrc;
             },
         }
     }

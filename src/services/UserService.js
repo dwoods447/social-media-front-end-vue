@@ -12,13 +12,20 @@ export default {
       return Api.get(`/users/find/user/${user.userId}`, user)
     },
     editUserInfo(userData){ 
-     return Api.post(`/users/update/user/${userData._id}`, userData)
+      console.log(`Edit Profile Data: ${JSON.stringify(userData)}`)
+      const formDataProp  = new FormData();
+      formDataProp.append('about', userData.about) 
+      formDataProp.append('image', userData.image, userData.image.name)
+     
+      console.log(`Sending this : ${JSON.stringify(formDataProp)}`)
+     return Api.post(`/users/update/user/${userData.userId}/edit`, formDataProp)
     },
-    uploadUserPhoto(photo){
-        const formData  = new FormData();
-       formData.append('image', photo.image, photo.image.name) 
-      return Api.post('/users/image/upload', formData);  
-    },
+    // uploadUserPhoto(photo){
+    //     const formData  = new FormData();
+        
+      
+    //   return Api.post('/users/image/upload', formData);  
+    // },
     getAllUsersFollowed(){
       return Api.get('/users/get/users/followed'); 
     },

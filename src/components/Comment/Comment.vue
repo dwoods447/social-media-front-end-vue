@@ -9,7 +9,6 @@
         <div v-if="comment.postedBy.generatedUser == 'true'" :class="['comment-border','is-generated-user']">
           <div v-if="comment.postedBy.gender == 'male'" class="comment-photo-container">
                <img :src="comment.postedBy.images.imagePaths[0].path|maleImageSrcFilter" :class="['comment-photo', 'is-male']">
-               <p>{{ comment.username }}</p><p>{{ comment.text }}</p><p>{{comment.created}}</p>
           </div>
            <div v-if="comment.postedBy.gender ==='female'" class="comment-photo-container">
                <img :src="comment.postedBy.images.imagePaths[0].path|femaleImageSrcFilter" :class="['comment-photo','is-female']">
@@ -19,11 +18,24 @@
              <img :src="comment.postedBy.images.imagePaths[0].path|imageSrcFilter" :class="['comment-photo','is-real-user']">
          </div>
         </v-col>
-       <v-col lg="10" class="comment-text-container">
+       <v-col lg="9" class="comment-text-container">
+           <div>
              <p class="comment-text">{{ comment.postedBy.username }}</p>
              <p class="comment-text">{{ comment.text }}</p>
              <p class="comment-text">{{comment.created}}</p>
+           </div>
+           
       </v-col>
+       <v-col lg="1">
+           <div class="comment-photo-container">
+            <v-btn text v-if="canDelete === true" :class="[{canDelete: 'show-comment-remove-icon'}]" @click="deleteComment">
+                     <v-icon>delete</v-icon>
+            </v-btn>
+             <v-btn text v-else :class="['hide-comment-remove-icon']">
+                     <v-icon>delete</v-icon>
+            </v-btn>
+           </div>
+       </v-col>
       </v-row>
     </div>
 </template>
@@ -33,17 +45,33 @@
         props: {
             comment: {
                 type: Object,
+            },
+            postId:{
+                type: String,
             }
         },
         created(){
             //console.log(`Printed Comment: ${JSON.stringify(this.comment, null, 2)}`);
+             this.setCanDelete(); 
         },
         data(){
             return {
-
+                 canDelete: false,
             }
         },
         methods: {
+              deleteComment(){
+                   const commentInfo  = {postId: this.postId, commentId: this.comment.commentId};
+                   console.log(`deleting comment on post id:${this.postId}`)
+                   this.$store.dispatch('deleteCommentAction', commentInfo);
+             },
+              setCanDelete(){
+                console.log(`Comparing ${this.$store.getters.getUser._id} and ${this.comment.postedBy._id}`);
+                if(this.$store.getters.getUser._id === this.comment.postedBy._id){
+                    console.log(`This user posted this comment.`)
+                    this.canDelete = true;
+                }
+            },
 
         },
         filters:{
@@ -78,6 +106,9 @@
 </script>
 
 <style  scoped>
+.comment-container{
+    margin-top: 50px;
+}
  .comment-photo{
      width: 50px;
      height: 50px;
@@ -88,7 +119,7 @@
       margin: 35% auto;
  }
  .comment-text-container{
-     width: 53%;
+     width:85%;
      background-color: #eee;
      margin-left: -35px;
      padding: 0.5em;
@@ -96,5 +127,12 @@
  .comment-text{
      padding: 0.5em;
      line-height: 8px;
+ }
+ 
+ .show-comment-remove-icon{
+     display: block;
+ }
+ .hide-comment-remove-icon{
+     display: none;
  }
 </style>

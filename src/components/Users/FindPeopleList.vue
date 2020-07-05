@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h2>Find People List</h2>
         <FindPeople :user="user" :key="user._id" v-for="user in allUserFollowed"></FindPeople>
     </div>
 </template>

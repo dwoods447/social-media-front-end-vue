@@ -11,12 +11,12 @@
                         </div>
                     </div>
                      <div v-else>
-                           <img :src="postCreatorImage|imageSrcFilter" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" >
+                           <img :src="this.postPhotoBaseURL+'images/'+postCreatorImage" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 10px;" >
                     </div>
               
                 <h2 style="font-size: 1.1em; margin-right: 20px;">&nbsp;&nbsp;{{ postedBy.username }}<br/><span style="font-size: small;">{{ created | dateFilter}}</span></h2>
                 <v-spacer></v-spacer>
-                <v-btn text v-if="canDelete === true" :class="[{canDelete: 'show-post-remove-icon'}]">
+                <v-btn text v-if="canDelete === true" :class="[{canDelete: 'show-post-remove-icon'}]" @click="deletePost">
                      <v-icon>delete</v-icon>
                 </v-btn>
                  <v-btn text v-else :class="['hide-post-remove-icon']">
@@ -25,6 +25,11 @@
               </v-toolbar>
 
        <v-card-text>
+           <div v-if="photo.length > 0 && this.postPhotoBaseURL">
+            <div style="max-width: 100%; height: auto;">
+               <img :src="this.postPhotoBaseURL+'images/'+photo[0].path" style="width: 100%;">
+            </div>
+           </div>
            {{this.text}}
            <v-card-actions>
                 <v-btn icon @click="addLikeToPost(postId)">
@@ -52,6 +57,7 @@
 
 <script>
 import moment from 'moment'
+import api from '../../services/API'
     export default {
         props: {
             text: {
@@ -80,17 +86,22 @@ import moment from 'moment'
             },
             postId: {
                 type: String
+            },
+            photo: {
+                type: Array
             }
         },
         created(){
             this.checkLikes(); 
-            this.setCanDelete();  
+            this.setCanDelete(); 
+            this.postPhotoBaseURL = api.defaults.baseURL;
        },
         data(){
             return {
                 comment: '',
                 postWasLikedByYou: true,
                 canDelete: false,
+                postPhotoBaseURL: null,
             }
         },
         computed: {
@@ -132,8 +143,9 @@ import moment from 'moment'
                 }
              
             },
-             deletePost(postId){
-                   const postInfo  = {postId: postId};
+             deletePost(){
+                   const postInfo  = {postId: this.postId};
+                   console.log(`deleting post in the post component post id:${this.postId}`)
                    this.$store.dispatch('deletePostAction', postInfo);
              }
         },

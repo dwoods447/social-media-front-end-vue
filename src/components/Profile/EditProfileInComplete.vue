@@ -1,23 +1,12 @@
 <template>
 <div>
                 <div class="flex-container">
-                      <div v-if="isGeneratedUser === 'true'" >
-                          <div v-if="getGender === 'male'">
-                                Main Image: <img :src="fullImageSrc|maleImageSrcFilter" aspect-ratio="1">
-                          </div>
-                           <div v-if="getGender === 'female'">
-                                 Main Image: <img :src="fullImageSrc|femaleImageSrcFilter" aspect-ratio="1" >
-                          </div>
-                      </div>
-                      <div v-else>
-                            Main Image: <img :src="fullImageSrc|imageSrcFilter" aspect-ratio="1">
-                      </div>
                       <div>
                         <div style="max-width: 100%; height: auto;">
                               <img :src="imgPreview" alt="" style="width: 100%;">
                         </div>
                         <a @click="removeSelectedFile" href="javascript:void(0);">
-                            <span  v-if="fullImageSrc">X</span>
+                            <span  v-if="imgPreview">X</span>
                         </a>
                         <input type="file" ref="file"  @change="onSelect">
                          <v-card-actions>
@@ -41,36 +30,13 @@
            <v-card class="elevation-12">
                <h2 style="text-align:center;">Edit Profile</h2>
               <v-form @submit.prevent="formSubmit" enctype="multipart/form-data"  style="padding: 1em;">
-                    <v-text-field
-                    v-model="username"
-                    :counter="10"
-                    label="Username"
-                    required
-                
-                    ></v-text-field>
+            
                     <v-text-field
                     v-model="about"
-                    label="About"
+                    label="BIO"
                     required
                     ></v-text-field>
-                    <v-text-field
-                    v-model="email"
-                    label="E-mail"
-                    required
-                    ></v-text-field>
-                    <v-text-field
-                    v-model="password"
-                    label="Password"
-                    required
-                    password
-                    ></v-text-field>
-                    <v-text-field
-                    v-model="confirmPassword"
-                    label="Confirm Password"
-                    required
-                    password
-                ></v-text-field>
-                <v-btn class="mr-4">submit</v-btn>
+                <v-btn class="mr-4" @click="formSubmit">submit</v-btn>
                 <v-btn>clear</v-btn>
             </v-form>
              </v-card>
@@ -88,6 +54,7 @@
         },
         created(){
             console.log(`User Generated value: ${this.$store.getters.isGeneratedUser}`);
+           // this.loaderUserDetails();
         },
         data(){
             return {
@@ -101,6 +68,7 @@
                 username: '',
                 email: '',
                 about: '',
+                password: '',
                 confirmPassword: '',
                 image: null,
 
@@ -150,8 +118,9 @@
                 this.selectedFile = null;
                 this.$refs.file.value = null;
                 this.imageUrl = '';
-                 this.previewSrc = '';
+                this.previewSrc = '';
             },
+
         },
         computed: {
            

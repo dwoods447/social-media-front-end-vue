@@ -65,7 +65,7 @@ export default {
             this.$router.push({name: 'newsfeed'});
           } else {
               console.log('redirecting to edit profile');
-              this.$router.push({name: 'edit-profile'});
+              this.$router.push({name: 'edit-profile-incomplete'});
           }
         }
         

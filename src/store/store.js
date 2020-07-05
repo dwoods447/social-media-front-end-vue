@@ -20,6 +20,7 @@ const store = new Vuex.Store({
   isLoggedIn: false,
   appName: "InTheMix",
   newsFeedPosts: [],
+  editUser: null,
  },
 
  mutations: {
@@ -156,6 +157,14 @@ const store = new Vuex.Store({
       }
     },
 
+    async registerForAccountAction(context, formData){
+      const registerResp = (await Auth.register(formData)).data;
+      if(!registerResp){
+        return;
+      }
+      return registerResp;
+    },
+
     async getAllUsersFollowedAction(context){
         console.log('gEtting users followed in store...');
         context.dispatch('setAuthHeaderTokenAction', context.state.token);
@@ -193,13 +202,16 @@ const store = new Vuex.Store({
 
     async editUserInfoAction(context, userData){
       context.dispatch('setAuthHeaderTokenAction', context.state.token);
-      const editResponse = await UserService.editUserInfo(userData)
+      console.log(`Edit Profile Data in sotre: ${JSON.stringify(userData)}`)
+      const editResponse = (await UserService.editUserInfo(userData)).data;
       if(!editResponse){
         return;
       }
+      console.log(`editResponse: ${JSON.stringify(editResponse)}`)
       context.commit('setLoggedInUserIdMutation', editResponse.user);
       localStorage.removeItem('user');
       localStorage.setItem('user', editResponse.user);
+      
       return 'Account successfuly updated!'
     },
 
@@ -250,6 +262,17 @@ const store = new Vuex.Store({
         return;
        }
        return 'Post removed successfully';
+    },
+
+
+    async deleteCommentAction(context, postInfo){
+      console.log('Initiating Api call to delete comment')
+      context.dispatch('setAuthHeaderTokenAction', context.state.token);
+      const deleteResponse = await PostService.deleteComment(postInfo);
+      if(!deleteResponse){
+        return;
+       }
+       return 'Comment removed successfully';
     },
 
     async loadUserProfileAction(context, userID){
@@ -319,7 +342,7 @@ const store = new Vuex.Store({
       }
     },
     isProfileComplete(state){
-      if(state.user !== null){
+      if(state.user !== null && state.user.isProfileComplete === 'true'){
         return  state.user.isProfileComplete;
       } else {
         return null;

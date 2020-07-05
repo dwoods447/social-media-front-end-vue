@@ -1,12 +1,11 @@
 <template>
     <div v-if="user">
     <v-row
-        class="mb-6"
+        class="suggestion-row"
         justify="center"
         no-gutters
-        style="border: 1px solid red; width: 400px; margin: 0; padding: 0;"
         >
-      <v-col lg="3">
+      <v-col lg="2">
         <div v-if="user.generatedUser === 'true'">
           <div v-if="user.gender == 'male'">
                <img :src="user|maleImageSrcFilter" :class="['is-male']" class="find-people-img">
@@ -19,7 +18,7 @@
              <img :src="user|imageSrcFilter" :class="['is-real-user']" class="find-people-img">
          </div>
         </v-col>
-       <v-col lg="3" class="user-text-container">
+       <v-col lg="4" class="user-text-container">
              <p >{{ user.username }}</p>
       </v-col>
        <v-col lg="3">
@@ -101,5 +100,12 @@ import FollowButton from '@/components/Profile/FollowButton'
     width: 50px;
     height: 50px;
     border-radius: 50%;
+}
+
+.suggestion-row{
+      background-color: #ccc;
+      max-width: 100%; 
+      margin: 5px; 
+      padding: 1em;
 }
 </style>

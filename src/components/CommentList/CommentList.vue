@@ -1,7 +1,8 @@
 <template>
     <div   :class="[{'comment-list-container-comments':hasComments},{'comment-list-container-no-comment':!hasComments}]">
         <comment 
-        :comment="comment" 
+        :comment="comment"
+        :postId="postId"
         v-for="comment in comments" 
         :key="comment._id"></comment>
     </div>
@@ -14,6 +15,9 @@
             comments: {
                  type: Array,
                  required: true
+            },
+            postId:{
+                type: String
             }
         },
         components: {
@@ -28,7 +32,8 @@
         },
         data(){
             return {
-               hasComments: false
+               hasComments: false,
+               
             }
         },
         methods: {
